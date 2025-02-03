@@ -1,0 +1,6 @@
+Optimal beta: 0.4000π
+Optimal gamma: 0.1429π
+Best bitstring: 00110
+Best cut value: 5
+Total frequency: 1024
+Distribution chart generated successfully.
