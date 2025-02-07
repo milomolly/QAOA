@@ -2,6 +2,7 @@ import numpy as np
 
 from src.calculate_best_cut import calculate_best_cut
 from src.cost_hamiltonian import create_cost_hamiltonian
+from src.energy_histogram import generate_energy_histogram
 from src.estimator_run import estimator_run
 from src.generate_chart import generate_heatmap
 from src.sampler_run import sampler_run
@@ -31,8 +32,9 @@ gamma_values = np.linspace(0, np.pi, 8)
 cost_hamiltonian = create_cost_hamiltonian(adj_matrix)
 
 ''"run by sampler'"
-#expectation_values = sampler_run(beta_values, gamma_values , n_qubits, cost_hamiltonian, adj_matrix)
+expectation_values = sampler_run(beta_values, gamma_values , n_qubits, cost_hamiltonian, adj_matrix)
 ''"run by estimator'"
-expectation_values = estimator_run(beta_values, gamma_values , n_qubits, cost_hamiltonian)
+#expectation_values = estimator_run(beta_values, gamma_values , n_qubits, cost_hamiltonian)
 generate_heatmap(expectation_values)
-calculate_best_cut(expectation_values, beta_values, gamma_values, cost_hamiltonian, adj_matrix)
+optimal_beta, optimal_gamma = calculate_best_cut(expectation_values, beta_values, gamma_values, cost_hamiltonian, adj_matrix)
+generate_energy_histogram(optimal_beta, optimal_gamma, n_qubits, cost_hamiltonian, adj_matrix)

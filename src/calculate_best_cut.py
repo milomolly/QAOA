@@ -38,10 +38,6 @@ def calculate_best_cut(expectation_values, beta_values, gamma_values, cost_hamil
         f.write(f"Best cut value: {best_cut_value}\n")
         total_frequency = sum(counts.values())
         f.write(f"Total frequency: {total_frequency}\n")
-
-        # Optionally save the distribution chart
         generate_distribution(counts)
         f.write("Distribution chart generated successfully.\n")
-
-# Example usage (ensure you have required inputs for function call)
-# calculate_best_cut(expectation_values, beta_values, gamma_values, cost_hamiltonian, adj_matrix)
+        return optimal_beta, optimal_gamma
