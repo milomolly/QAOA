@@ -1,17 +1,14 @@
 from qiskit.quantum_info import SparsePauliOp
 
-def create_cost_hamiltonian(adj_matrix):
-    n = len(adj_matrix)
+def create_cost_hamiltonian(G):
+    nodes = list(G.nodes())
+    index_map = {node: idx for idx, node in enumerate(nodes)}
+    n = len(nodes)
     terms = []
-    coeffs = []
-    for i in range(n):
-        for j in range(i + 1, n):
-            if adj_matrix[i][j] == 1:
-                z_i = ["I"] * n
-                z_i[i] = "Z"
-                z_i[j] = "Z"
-
-                terms.append(("".join(z_i[::-1]), 1.0))
-                coeffs.append(1.0)
-
+    for u, v in G.edges():
+        pauli_list = ["I"] * n
+        pauli_list[index_map[u]] = "Z"
+        pauli_list[index_map[v]] = "Z"
+        pauli_str = "".join(pauli_list[::-1])
+        terms.append((pauli_str, 1.0))
     return SparsePauliOp.from_list(terms)

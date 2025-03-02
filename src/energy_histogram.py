@@ -4,16 +4,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 from qiskit_aer import AerSimulator
 
-from src.qaoa_circuit import qaoa_circuit
+from qaoa_circuit import qaoa_circuit
 
 
-def calculate_cut_value(bitstring, adj_matrix):
-    """Calculate the Max-Cut value for a given bitstring."""
+def calculate_cut_value(bitstring, G):
     cut_value = 0
-    for i in range(len(adj_matrix)):
-        for j in range(i + 1, len(adj_matrix)):
-            if adj_matrix[i][j] == 1 and bitstring[i] != bitstring[j]:
-                cut_value -= 1
+    # Iterate over each edge in the graph
+    for i, j in G.edges():
+        # If the bits for the connected nodes differ, increment the cut value.
+        if bitstring[i] != bitstring[j]:
+            cut_value -= 1
     return cut_value
 
 

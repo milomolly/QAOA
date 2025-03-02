@@ -1,7 +1,7 @@
 from qiskit_aer import AerSimulator
-from src.qaoa_circuit import qaoa_circuit
+from qaoa_circuit import qaoa_circuit
 import numpy as np
-from src.generate_chart import generate_distribution
+from generate_chart import generate_distribution
 
 
 def calculate_best_cut(expectation_values, beta_values, gamma_values, cost_hamiltonian, adj_matrix,
@@ -25,13 +25,13 @@ def calculate_best_cut(expectation_values, beta_values, gamma_values, cost_hamil
         best_bitstring = max(counts, key=counts.get)
         f.write(f"Best bitstring: {best_bitstring}\n")
 
-        def calculate_cut_value(bitstring, adj_matrix):
-            """Calculate the Max-Cut value for a given bitstring."""
+        def calculate_cut_value(bitstring, G):
             cut_value = 0
-            for i in range(len(adj_matrix)):
-                for j in range(i + 1, len(adj_matrix)):
-                    if adj_matrix[i][j] == 1 and bitstring[i] != bitstring[j]:
-                        cut_value += 1
+            # Iterate over each edge in the graph
+            for i, j in G.edges():
+                # If the bits for the connected nodes differ, increment the cut value.
+                if bitstring[i] != bitstring[j]:
+                    cut_value += 1
             return cut_value
 
         best_cut_value = calculate_cut_value(best_bitstring, adj_matrix)

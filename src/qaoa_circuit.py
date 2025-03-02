@@ -5,6 +5,7 @@ def qaoa_circuit(beta, gamma, n_qubits, cost_hamiltonian):
     circuit = QuantumCircuit(n_qubits)
     circuit.h(range(n_qubits))
     for pauli, coeff in zip(cost_hamiltonian.paulis, cost_hamiltonian.coeffs):
+        print(pauli, coeff)
         qubits = [i for i, p in enumerate(pauli.to_label()) if p == "Z"]
         if len(qubits) == 2:
             circuit.rzz(2 * gamma * coeff.real, qubits[0], qubits[1])

@@ -1,5 +1,5 @@
 from qiskit_aer import AerSimulator
-from src.qaoa_circuit import qaoa_circuit
+from qaoa_circuit import qaoa_circuit
 from qiskit.primitives import Estimator
 import numpy as np
 
