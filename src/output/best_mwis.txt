@@ -1,0 +1,6 @@
+Optimal beta: 0.3667π
+Optimal gamma: 0.1429π
+Best bitstring: 10000
+Interpreting bit '1' as selected, maximum independent set value: 100
+Total frequency: 1024
+Distribution chart generated successfully.
