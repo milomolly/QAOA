@@ -34,7 +34,7 @@ def calculate_expectation_value(counts, adj_matrix):
 
     return total_cost / total_shots
 
-def sampler_run(beta_values, gamma_values , n_qubits, cost_hamiltonian, adj_matrix):
+def sampler_run_2(beta_values, gamma_values , n_qubits, cost_hamiltonian, adj_matrix):
     noise_model = NoiseModel()
 
     # single_qubit_error = depolarizing_error(0.8, 1)
@@ -43,36 +43,24 @@ def sampler_run(beta_values, gamma_values , n_qubits, cost_hamiltonian, adj_matr
     # noise_model.add_all_qubit_quantum_error(single_qubit_error, ["h", "rx", "rz"])
     # noise_model.add_all_qubit_quantum_error(two_qubit_error, ["cx", "rzz"])
     simulator = AerSimulator()
-    expectation_values = np.zeros((len(beta_values), len(gamma_values), len(beta_values), len(gamma_values)))
+    expectation_values = np.zeros((len(beta_values), len(gamma_values)))
     # simulator = AerSimulator(noise_model=noise_model)
-    # service = QiskitRuntimeService(channel="ibm_quantum", token=
-    # "be9ce45738a3e4d59a1e8f7af743c2026453dd47788409f5d047b78b43c5e5f8052d83a542647478859b5e9bc7878ac60a78e61afaf30b5ea2289729231f2a9e")
-    # backend = service.least_busy(min_num_qubits=127)
     sampler = Sampler(mode=simulator)
     circuits = []
-    circuits_1 = []
+
     for beta in beta_values:
         for gamma in gamma_values:
             qc = qaoa_circuit([beta], [gamma], n_qubits, cost_hamiltonian)
             qc.measure_all()
             circuits.append(qc)
-            for beta_1 in beta_values:
-                for gamma_1 in gamma_values:
-                    qc_1 = qaoa_circuit([beta, beta_1], [gamma, gamma_1], n_qubits, cost_hamiltonian)
-                    qc_1.measure_all()
-                    circuits_1.append(qc_1)
-
             #expectation_values[i, j] = calculate_expectation_value(counts, adj_matrix)
-    result = sampler.run(circuits_1).result()
-    # result = sampler.run([circuits_1], shot=int(1e4))
+    result = sampler.run(circuits).result()
     print(result)
     cnt = 0
     for i in range(0,len(beta_values)):
         for j in range(0,len(gamma_values)):
-            for x in range(0, len(beta_values)):
-                for y in range(0, len(gamma_values)):
-                    counts = result[cnt].data.meas.get_counts()
-                    cnt += 1
-                    expectation_values[i, j, x, y] = calculate_expectation_value(counts, adj_matrix)
+            counts = result[cnt].data.meas.get_counts()
+            cnt += 1
+            expectation_values[i, j] = calculate_expectation_value(counts, adj_matrix)
 
     return expectation_values

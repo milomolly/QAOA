@@ -1,6 +1,11 @@
 import matplotlib.pyplot as plt
 import os
 
+from qiskit.primitives import Estimator
+from qiskit_aer import AerSimulator
+
+from src.qaoa_circuit import qaoa_circuit
+
 
 def generate_heatmap(expectation_values, folder="output/graph", filename="heatmap.png"):
     # Ensure the folder exists
@@ -18,7 +23,7 @@ def generate_heatmap(expectation_values, folder="output/graph", filename="heatma
     plt.savefig(filepath, dpi=300, bbox_inches='tight')
     plt.close()
 
-def generate_distribution(counts, folder="output/graph", filename="distribution.png"):
+def generate_distribution(counts,filename, folder="output/graph"):
     os.makedirs(folder, exist_ok=True)
     filepath = os.path.join(folder, filename)
 
@@ -30,3 +35,31 @@ def generate_distribution(counts, folder="output/graph", filename="distribution.
     plt.xticks(rotation=90)
     plt.savefig(filepath, dpi=300, bbox_inches='tight')
     plt.close()
+
+
+def draw_bitstring_distribution(n_qubits, optimal_beta, optimal_gamma, cost_hamiltonian, shots=1024):
+    # Initialize the simulator.
+    simulator = AerSimulator()
+
+    # Build the QAOA circuit using optimal parameters.
+    qc = qaoa_circuit(optimal_beta, optimal_gamma, n_qubits, cost_hamiltonian)
+    qc.measure_all()  # Append measurement to all qubits.
+
+    # Execute the circuit on the simulator.
+    result = simulator.run(qc, shots=shots).result()
+    counts = result.get_counts()
+
+    # Plot the measurement distribution as a bar chart.
+    plt.figure(figsize=(10, 6))
+    bitstrings = list(counts.keys())
+    frequencies = list(counts.values())
+    max_bitstring = max(counts, key=counts.get)
+    print("Bitstring with maximum frequency:", max_bitstring, "with count:", counts[max_bitstring])
+
+    plt.bar(bitstrings, frequencies, color='blue', edgecolor='k')
+    plt.xlabel("Bitstring")
+    plt.ylabel("Frequency")
+    plt.title("Bitstring Distribution")
+    plt.xticks(rotation=90)
+    plt.tight_layout()
+    plt.show()

@@ -4,9 +4,11 @@ import ast
 from calculate_max_value import calculate_max_value
 from cost_hamiltonian import create_cost_hamiltonian
 from energy_histogram import generate_mwis_histogram
-from estimator_run import estimator_run
-from generate_chart import generate_heatmap
+from estimator_run import  estimator_run_qaoa, estimator_run_qaoa_grid
+from generate_chart import generate_heatmap, draw_bitstring_distribution
 from sampler_run import sampler_run
+from sampler_run_2 import sampler_run_2
+
 import networkx as nx
 
 
@@ -45,19 +47,39 @@ def read_graph(file_path):
     # Assign the vertex weights as node attributes
     node_weight_dict = {i: weight for i, weight in enumerate(vertex_weights)}
     nx.set_node_attributes(graph, node_weight_dict, 'weight')
-
     return graph
 file_path = 'input/graph.txt'  # Update this to your file path
 graph = read_graph(file_path)
 n_qubits = len(graph)
-beta_values = np.linspace(0, np.pi/2, 16)
-gamma_values = np.linspace(0, np.pi, 8)
+print(n_qubits)
 cost_hamiltonian = create_cost_hamiltonian(graph)
 
 ''"run by sampler'"
-expectation_values = sampler_run(beta_values, gamma_values , n_qubits, cost_hamiltonian, graph)
+#expectation_values_2 = sampler_run_2(beta_values, gamma_values , n_qubits, cost_hamiltonian, graph)
+#expectation_values = sampler_run(beta_values, gamma_values , n_qubits, cost_hamiltonian, graph)
+
 ''"run by estimator'"
-#expectation_values = estimator_run(beta_values, gamma_values , n_qubits, cost_hamiltonian)
-generate_heatmap(expectation_values)
-optimal_beta, optimal_gamma = calculate_max_value(expectation_values, beta_values, gamma_values, cost_hamiltonian, graph)
-generate_mwis_histogram(optimal_beta, optimal_gamma, n_qubits, cost_hamiltonian, graph)
+# expectation_values = estimator_run(beta_values, gamma_values , n_qubits, cost_hamiltonian)
+# print(expectation_values)
+# generate_heatmap(expectation_values)
+# optimal_beta, optimal_gamma, optimal_energy = estimator_run_qaoa(
+#     n_qubits=n_qubits,
+#     p=1,
+#     cost_hamiltonian=cost_hamiltonian
+# )
+# optimal_beta_2, optimal_gamma_2, optimal_energy_2 = estimator_run_qaoa(
+#     n_qubits=n_qubits,
+#     p=2,
+#     cost_hamiltonian=cost_hamiltonian
+# )
+optimal_beta, optimal_gamma, optimal_energy = estimator_run_qaoa_grid(n_qubits,1, cost_hamiltonian, grid_resolution=10)
+# optimal_beta_2, optimal_gamma_2, optimal_energy_2 = estimator_run_qaoa_grid(n_qubits,2, cost_hamiltonian, grid_resolution=10)
+# print(optimal_beta, optimal_gamma, optimal_energy)
+# optimal_beta, optimal_gamma = calculate_max_value(optimal_beta, optimal_gamma, cost_hamiltonian, graph)
+# optimal_beta_2, optimal_gamma_2 = calculate_max_value(expectation_values_2, beta_values, gamma_values, cost_hamiltonian, graph)
+optimal_params = [(optimal_beta, optimal_gamma)]
+print(optimal_gamma)
+print(optimal_beta)
+print(optimal_energy)
+draw_bitstring_distribution(n_qubits, optimal_beta, optimal_gamma, cost_hamiltonian)
+generate_mwis_histogram(optimal_params, n_qubits, cost_hamiltonian, graph)
