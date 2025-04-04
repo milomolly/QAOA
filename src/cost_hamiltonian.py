@@ -3,7 +3,7 @@ import networkx as nx
 from qiskit.quantum_info import Pauli, SparsePauliOp
 
 
-def create_cost_hamiltonian(G):
+def create_cost_hamiltonian_mwis(G):
 
     nodes = list(G.nodes())
     linear = {}
@@ -13,7 +13,6 @@ def create_cost_hamiltonian(G):
     for node in nodes:
         weight = G.nodes[node].get("weight", 1.0)  # Default weight is 1.0 if not specified.
         linear[node] = -weight / 2.0  # -w_i/2 * Z_i
-        print(linear[node])
 
     # Compute penalty A as the maximum sum of weights for any edge
     if G.edges():

@@ -12,16 +12,16 @@ simulator = AerSimulator()
 estimator = Estimator()
 
 
-def qaoa_cost_function(params, n_qubits, p, cost_hamiltonian):
+def qaoa_cost_function(params, n_qubits, p, cost_mwis):
     beta = params[:p]
     gamma = params[p:]
-    qc = qaoa_circuit(beta, gamma, n_qubits, cost_hamiltonian)
+    qc = qaoa_circuit(beta, gamma, n_qubits, cost_mwis)
     # Wrap input properly as a tuple
-    job = estimator.run([qc], [bqm_to_pauli_sumop(cost_hamiltonian)])
+    job = estimator.run([qc], [bqm_to_pauli_sumop(cost_mwis)])
     results = job.result().values[0]
 
     return results
-def estimator_run_qaoa(n_qubits, p, cost_hamiltonian):
+def estimator_run_qaoa(n_qubits, p, cost_mwis):
     initial_beta = np.random.uniform(0, np.pi, p)
     initial_gamma = np.random.uniform(0, 2 * np.pi, p)
     initial_params = np.concatenate([initial_beta, initial_gamma])
@@ -29,9 +29,9 @@ def estimator_run_qaoa(n_qubits, p, cost_hamiltonian):
     result = minimize(
         qaoa_cost_function,
         initial_params,
-        args=(n_qubits, p, cost_hamiltonian),
+        args=(n_qubits, p, cost_mwis),
         method='COBYLA',
-        options={'maxiter': 200, 'disp': True}
+        tol=1e-4
     )
 
     optimal_beta = result.x[:p]
@@ -39,7 +39,7 @@ def estimator_run_qaoa(n_qubits, p, cost_hamiltonian):
 
     return optimal_beta, optimal_gamma, result.fun
 
-def estimator_run_qaoa_grid(n_qubits, p, cost_hamiltonian, grid_resolution=16):
+def estimator_run_qaoa_grid(n_qubits, p, cost_mwis, grid_resolution=16):
     beta_range = np.linspace(0, np.pi, grid_resolution)
     gamma_range = np.linspace(0, 2 * np.pi, grid_resolution * 2 )
 
@@ -54,19 +54,10 @@ def estimator_run_qaoa_grid(n_qubits, p, cost_hamiltonian, grid_resolution=16):
     for beta in beta_grid:
         for gamma in gamma_grid:
             params = np.concatenate([beta, gamma])
-            cost = qaoa_cost_function(params, n_qubits, p, cost_hamiltonian)
-            print(cost)
+            cost = qaoa_cost_function(params, n_qubits, p, cost_mwis)
             if cost < best_cost:
                 best_cost = cost
                 best_beta = beta
                 best_gamma = gamma
-    sampler = dimod.ExactSolver()
-    sampleset = sampler.sample(cost_hamiltonian)
-    best_sample = sampleset.first.sample
-    best_energy = sampleset.first.energy
 
-    print("\nBest sample (bitstring with lowest energy):")
-    print(best_sample)
-    print("Best energy:")
-    print(best_energy)
     return np.array(best_beta), np.array(best_gamma), best_cost

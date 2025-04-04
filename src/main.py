@@ -1,8 +1,9 @@
+import dimod
 import numpy as np
 import ast
 
 from calculate_max_value import calculate_max_value
-from cost_hamiltonian import create_cost_hamiltonian
+from cost_hamiltonian import create_cost_hamiltonian_mwis
 from energy_histogram import generate_mwis_histogram
 from estimator_run import  estimator_run_qaoa, estimator_run_qaoa_grid
 from generate_chart import generate_heatmap, draw_bitstring_distribution
@@ -51,12 +52,12 @@ def read_graph(file_path):
 file_path = 'input/graph.txt'  # Update this to your file path
 graph = read_graph(file_path)
 n_qubits = len(graph)
-print(n_qubits)
-cost_hamiltonian = create_cost_hamiltonian(graph)
-
+cost_mwis = create_cost_hamiltonian_mwis(graph)
+# initial_beta = np.random.uniform(0, np.pi, 1)
+# initial_gamma = np.random.uniform(0, 2 * np.pi, 1)
 ''"run by sampler'"
 #expectation_values_2 = sampler_run_2(beta_values, gamma_values , n_qubits, cost_hamiltonian, graph)
-#expectation_values = sampler_run(beta_values, gamma_values , n_qubits, cost_hamiltonian, graph)
+# expectation_values = sampler_run(initial_beta, initial_gamma , n_qubits, cost_mwis, graph)
 
 ''"run by estimator'"
 # expectation_values = estimator_run(beta_values, gamma_values , n_qubits, cost_hamiltonian)
@@ -65,21 +66,28 @@ cost_hamiltonian = create_cost_hamiltonian(graph)
 # optimal_beta, optimal_gamma, optimal_energy = estimator_run_qaoa(
 #     n_qubits=n_qubits,
 #     p=1,
-#     cost_hamiltonian=cost_hamiltonian
+#     cost_mwis=cost_mwis
 # )
 # optimal_beta_2, optimal_gamma_2, optimal_energy_2 = estimator_run_qaoa(
 #     n_qubits=n_qubits,
 #     p=2,
-#     cost_hamiltonian=cost_hamiltonian
+#     cost_mwis=cost_mwis
 # )
-optimal_beta, optimal_gamma, optimal_energy = estimator_run_qaoa_grid(n_qubits,1, cost_hamiltonian, grid_resolution=10)
-# optimal_beta_2, optimal_gamma_2, optimal_energy_2 = estimator_run_qaoa_grid(n_qubits,2, cost_hamiltonian, grid_resolution=10)
-# print(optimal_beta, optimal_gamma, optimal_energy)
-# optimal_beta, optimal_gamma = calculate_max_value(optimal_beta, optimal_gamma, cost_hamiltonian, graph)
-# optimal_beta_2, optimal_gamma_2 = calculate_max_value(expectation_values_2, beta_values, gamma_values, cost_hamiltonian, graph)
-optimal_params = [(optimal_beta, optimal_gamma)]
+optimal_beta, optimal_gamma, optimal_energy = estimator_run_qaoa_grid(n_qubits,1, cost_mwis, grid_resolution=50)
+optimal_beta_2, optimal_gamma_2, optimal_energy_2 = estimator_run_qaoa_grid(n_qubits,2, cost_mwis, grid_resolution=16)
+print(optimal_beta, optimal_gamma, optimal_energy)
+optimal_params = [(optimal_beta, optimal_gamma), (optimal_beta_2, optimal_gamma_2)]
 print(optimal_gamma)
 print(optimal_beta)
 print(optimal_energy)
-draw_bitstring_distribution(n_qubits, optimal_beta, optimal_gamma, cost_hamiltonian)
-generate_mwis_histogram(optimal_params, n_qubits, cost_hamiltonian, graph)
+sampler = dimod.ExactSolver()
+sampleset = sampler.sample(cost_mwis)
+best_sample = sampleset.first.sample
+best_energy = sampleset.first.energy
+
+print("\nBest sample (bitstring with lowest energy):")
+print(best_sample)
+print("Best energy:")
+print(best_energy)
+draw_bitstring_distribution(n_qubits, optimal_beta, optimal_gamma, cost_mwis)
+generate_mwis_histogram(optimal_params, n_qubits, cost_mwis, graph)

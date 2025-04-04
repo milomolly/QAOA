@@ -56,23 +56,16 @@ def sampler_run(beta_values, gamma_values , n_qubits, cost_hamiltonian, adj_matr
             qc = qaoa_circuit([beta], [gamma], n_qubits, cost_hamiltonian)
             qc.measure_all()
             circuits.append(qc)
-            for beta_1 in beta_values:
-                for gamma_1 in gamma_values:
-                    qc_1 = qaoa_circuit([beta, beta_1], [gamma, gamma_1], n_qubits, cost_hamiltonian)
-                    qc_1.measure_all()
-                    circuits_1.append(qc_1)
 
             #expectation_values[i, j] = calculate_expectation_value(counts, adj_matrix)
-    result = sampler.run(circuits_1).result()
-    # result = sampler.run([circuits_1], shot=int(1e4))
+    result = sampler.run(circuits).result()
     print(result)
     cnt = 0
     for i in range(0,len(beta_values)):
         for j in range(0,len(gamma_values)):
-            for x in range(0, len(beta_values)):
-                for y in range(0, len(gamma_values)):
-                    counts = result[cnt].data.meas.get_counts()
-                    cnt += 1
-                    expectation_values[i, j, x, y] = calculate_expectation_value(counts, adj_matrix)
-
+            counts = result[cnt].data.meas.get_counts()
+            cnt += 1
+            expectation_values[i, j] = calculate_expectation_value(counts, adj_matrix)
+    print("expectation_value is:")
+    print(expectation_values)
     return expectation_values

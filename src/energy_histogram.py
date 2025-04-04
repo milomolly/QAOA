@@ -84,7 +84,6 @@ def generate_mwis_histogram(optimal_params_list, n_qubits, cost_hamiltonian, G, 
 
     plt.xlabel("Energy")
     plt.ylabel("Frequency")
-    plt.title("Energy Distribution: QAOA vs Random Sampling")
     plt.legend()
     plt.grid(True)
 
