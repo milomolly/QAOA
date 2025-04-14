@@ -27,7 +27,7 @@ def compute_energy(bitstring, G, A=0):
     return energy
 
 
-def generate_mwis_histogram(optimal_params_list, n_qubits, cost_hamiltonian, G, A=10):
+def generate_mwis_histogram(optimal_params_list, n_qubits, cost_hamiltonian, G, A=0):
     simulator = AerSimulator()
 
     # -- 1. Run QAOA circuits and gather measured bitstrings --
@@ -44,8 +44,7 @@ def generate_mwis_histogram(optimal_params_list, n_qubits, cost_hamiltonian, G, 
         energies = []
         for bitstring, freq in counts.items():
             energy = compute_energy(bitstring, G, A)
-            if energy <= 50:
-                energies.extend([energy] * freq)
+            energies.extend([energy] * freq)
 
         qaoa_results.append((counts, energies))
         labels.append(f"QAOA p = {i + 1}")
@@ -56,8 +55,7 @@ def generate_mwis_histogram(optimal_params_list, n_qubits, cost_hamiltonian, G, 
     for _ in range(num_random_samples):
         random_bitstring = "".join(str(x) for x in np.random.choice([0, 1], size=n_qubits))
         energy = compute_energy(random_bitstring, G, A)
-        if energy <= 50:
-            random_energies.append(energy)
+        random_energies.append(energy)
 
     # -- 2. Plot histogram (Multiple QAOA vs. Random Sampling) --
     plt.figure(figsize=(12, 6))
@@ -100,9 +98,8 @@ def generate_mwis_histogram(optimal_params_list, n_qubits, cost_hamiltonian, G, 
         energy_dict = {}
         for bitstring, freq in counts.items():
             energy = compute_energy(bitstring, G, A)
-            if energy is not None and energy <= 50:
-                energy_dict.setdefault(energy, {})
-                energy_dict[energy][bitstring] = energy_dict[energy].get(bitstring, 0) + freq
+            energy_dict.setdefault(energy, {})
+            energy_dict[energy][bitstring] = energy_dict[energy].get(bitstring, 0) + freq
 
         # Sort energies for x-axis and collect unique bitstrings
         sorted_energies = sorted(energy_dict.keys())

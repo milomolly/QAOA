@@ -8,12 +8,12 @@ def create_cost_hamiltonian_mwis(G):
     nodes = list(G.nodes())
     linear = {}
     quadratic = {}
-
+    offset = 0.0
     # Linear terms from vertex weights
     for node in nodes:
         weight = G.nodes[node].get("weight", 1.0)  # Default weight is 1.0 if not specified.
         linear[node] = -weight / 2.0  # -w_i/2 * Z_i
-
+        offset -= weight / 2.0
     # Compute penalty A as the maximum sum of weights for any edge
     if G.edges():
         A = max(G.nodes[u].get("weight", 1.0) + G.nodes[v].get("weight", 1.0) for u, v in G.edges())
@@ -27,9 +27,10 @@ def create_cost_hamiltonian_mwis(G):
         # Adjust linear biases due to additional terms
         linear[u] += A / 4
         linear[v] += A / 4
+        offset += A / 4
 
     # Create the BQM model
-    bqm = dimod.BinaryQuadraticModel(linear, quadratic, offset=0, vartype=dimod.SPIN)
+    bqm = dimod.BinaryQuadraticModel(linear, quadratic, offset=offset, vartype=dimod.SPIN)
 
     return bqm
 def bqm_to_pauli_sumop(bqm):

@@ -49,7 +49,7 @@ def read_graph(file_path):
     node_weight_dict = {i: weight for i, weight in enumerate(vertex_weights)}
     nx.set_node_attributes(graph, node_weight_dict, 'weight')
     return graph
-file_path = 'input/graph.txt'  # Update this to your file path
+file_path = 'input/graph_test.txt'  # Update this to your file path
 graph = read_graph(file_path)
 n_qubits = len(graph)
 cost_mwis = create_cost_hamiltonian_mwis(graph)
@@ -73,8 +73,8 @@ cost_mwis = create_cost_hamiltonian_mwis(graph)
 #     p=2,
 #     cost_mwis=cost_mwis
 # )
-optimal_beta, optimal_gamma, optimal_energy = estimator_run_qaoa_grid(n_qubits,1, cost_mwis, grid_resolution=50)
-optimal_beta_2, optimal_gamma_2, optimal_energy_2 = estimator_run_qaoa_grid(n_qubits,2, cost_mwis, grid_resolution=16)
+optimal_beta, optimal_gamma, optimal_energy = estimator_run_qaoa_grid(n_qubits,1, cost_mwis, grid_resolution=20)
+optimal_beta_2, optimal_gamma_2, optimal_energy_2 = estimator_run_qaoa_grid(n_qubits,2, cost_mwis, grid_resolution=9)
 print(optimal_beta, optimal_gamma, optimal_energy)
 optimal_params = [(optimal_beta, optimal_gamma), (optimal_beta_2, optimal_gamma_2)]
 print(optimal_gamma)

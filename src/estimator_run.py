@@ -7,11 +7,20 @@ from qiskit_aer import AerSimulator
 from src.qaoa_circuit import qaoa_circuit
 from qiskit.primitives import Estimator
 from cost_hamiltonian import bqm_to_pauli_sumop
-simulator = AerSimulator()
+from qiskit_aer.noise import NoiseModel, depolarizing_error
 
+# noise_model = NoiseModel()
+#
+# # Single-qubit gate errors (depolarizing noise)
+# single_qubit_error = depolarizing_error(0.5, 1)
+# two_qubit_error = depolarizing_error(0.5, 2)
+#
+# noise_model.add_all_qubit_quantum_error(single_qubit_error, ["h", "rx", "rz"])
+# noise_model.add_all_qubit_quantum_error(two_qubit_error, ["cx", "rzz"])
+# print(noise_model)
+#
+# simulator = AerSimulator(noise_model=noise_model)
 estimator = Estimator()
-
-
 def qaoa_cost_function(params, n_qubits, p, cost_mwis):
     beta = params[:p]
     gamma = params[p:]
@@ -39,7 +48,7 @@ def estimator_run_qaoa(n_qubits, p, cost_mwis):
 
     return optimal_beta, optimal_gamma, result.fun
 
-def estimator_run_qaoa_grid(n_qubits, p, cost_mwis, grid_resolution=16):
+def estimator_run_qaoa_grid(n_qubits, p, cost_mwis, grid_resolution):
     beta_range = np.linspace(0, np.pi, grid_resolution)
     gamma_range = np.linspace(0, 2 * np.pi, grid_resolution * 2 )
 
